@@ -40,6 +40,11 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+        'api' => [
+          'driver' => 'passport' ,
+          'provider' => 'users' ,
+          'hash' =>'false'
+        ]
     ],
 
     /*
@@ -59,16 +64,16 @@ return [
     |
     */
 
-    'providers' => [
+    'provider' => [
         'users' => [
             'driver' => 'eloquent',
             'model' => env('AUTH_MODEL', App\Models\User::class),
         ],
 
-        // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'users',
-        // ],
+         'users' => [
+             'driver' => 'database',
+             'table' => 'users',
+         ],
     ],
 
     /*

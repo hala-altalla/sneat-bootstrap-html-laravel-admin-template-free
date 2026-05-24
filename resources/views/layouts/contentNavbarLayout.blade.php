@@ -30,60 +30,117 @@ $container = ($container ?? 'container-xxl');
 
 @section('layoutContent')
 <div class="layout-wrapper layout-content-navbar {{ $isMenu ? '' : 'layout-without-menu' }}">
-    <div class="layout-container">
+  <div class="layout-container">
 
-        @if ($isMenu)
-        @include('layouts/sections/menu/verticalMenu')
-        @endif
+    @if ($isMenu)
+    @include('layouts/sections/menu/verticalMenu')
+    @endif
 
 
-        <!-- Layout page -->
-        <div class="layout-page">
+    <!-- Layout page -->
+    <div class="layout-page">
 
-            {{-- Below commented code read by artisan command while installing jetstream. !! Do not remove if you want to use jetstream. --}}
-            {{-- <x-banner /> --}}
+      {{-- Below commented code read by artisan command while installing jetstream. !! Do not remove if you want to use jetstream. --}}
+      {{-- <x-banner /> --}}
 
-            <!-- BEGIN: Navbar-->
-            @if ($isNavbar)
-            @include('layouts/sections/navbar/navbar')
+      <!-- BEGIN: Navbar-->
+      @if ($isNavbar)
+      @include('layouts/sections/navbar/navbar')
+      @endif
+      <!-- END: Navbar-->
+
+
+      <!-- Content wrapper -->
+      <div class="content-wrapper">
+
+        <!-- Content -->
+        @if ($isFlex)
+        <div class="{{ $container }} d-flex align-items-stretch flex-grow-1 p-0">
+          @else
+          <div class="{{ $container }} flex-grow-1 container-p-y">
             @endif
-            <!-- END: Navbar-->
 
+            @yield('content')
 
-            <!-- Content wrapper -->
-            <div class="content-wrapper">
+          </div>
+          <!-- / Content -->
 
-                <!-- Content -->
-                @if ($isFlex)
-                <div class="{{ $container }} d-flex align-items-stretch flex-grow-1 p-0">
-                    @else
-                    <div class="{{ $container }} flex-grow-1 container-p-y">
-                        @endif
-
-                        @yield('content')
-
-                    </div>
-                    <!-- / Content -->
-
-                    <!-- Footer -->
-                    @if ($isFooter)
-                    @include('layouts/sections/footer/footer')
-                    @endif
-                    <!-- / Footer -->
-                    <div class="content-backdrop fade"></div>
-                </div>
-                <!--/ Content wrapper -->
-            </div>
-            <!-- / Layout page -->
+          <!-- Footer -->
+          @if ($isFooter)
+          @include('layouts/sections/footer/footer')
+          @endif
+          <!-- / Footer -->
+          <div class="content-backdrop fade"></div>
         </div>
-
-        @if ($isMenu)
-        <!-- Overlay -->
-        <div class="layout-overlay layout-menu-toggle"></div>
-        @endif
-        <!-- Drag Target Area To SlideIn Menu On Small Screens -->
-        <div class="drag-target"></div>
+        <!--/ Content wrapper -->
+      </div>
+      <!-- / Layout page -->
     </div>
-    <!-- / Layout wrapper -->
+
+    @if ($isMenu)
+    <!-- Overlay -->
+    <div class="layout-overlay layout-menu-toggle"></div>
+    @endif
+    <!-- Drag Target Area To SlideIn Menu On Small Screens -->
+    <div class="drag-target"></div>
+  </div>
+  <!-- / Layout wrapper -->
 </div>
+<!-- / notification -->
+
+
+<script type="module">
+import {
+  initializeApp
+} from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+import {
+  getMessaging,
+  getToken
+} from "https://www.gstatic.com/firebasejs/9.6.1/firebase-messaging.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDUCR3ys3mjdSK7xlIjptAtG4xyhiHnG6Q",
+  authDomain: "notifications-system-bdf44.firebaseapp.com",
+  projectId: "notifications-system-bdf44",
+  storageBucket: "notifications-system-bdf44.firebasestorage.app",
+  messagingSenderId: "579849444245",
+  appId: "1:579849444245:web:b6c020ecdd56bb43df349c"
+};
+if (!window.firebaseInitialized) {
+  window.firebaseInitialized = true;
+
+
+  const app = initializeApp(firebaseConfig);
+  const messaging = getMessaging(app);
+
+  Notification.requestPermission().then(permission => {
+
+    if (permission === 'granted') {
+
+      getToken(messaging, {
+        vapidKey: "BAnOdkXJFYBxWDmCbzcM4d6Ww9VFW48ThKwa0onHS_76JqWdWQA3VqAe1m9M8jLvngZVzXXFwn1q82BFexN8exc"
+      }).then(token => {
+
+        fetch('/admin/save-token', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+          },
+          body: JSON.stringify({
+            token: token
+          })
+        });
+      });
+
+    } else {
+      console.log('Permission denied');
+    }
+
+
+  });
+}
+</script>
+
+
 @endsection
